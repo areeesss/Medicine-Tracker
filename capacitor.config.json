@@ -1,0 +1,5 @@
+{
+  "appId": "com.medtracker.app",
+  "appName": "Medication Tracker",
+  "webDir": "dist"
+}

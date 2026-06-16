@@ -33,6 +33,14 @@ body {
   overflow-x: hidden;
 }
 
+body.is-tauri, html.is-tauri {
+  background-color: transparent !important;
+  background: transparent !important;
+  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

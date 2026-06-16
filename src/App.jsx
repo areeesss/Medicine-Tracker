@@ -13,9 +13,14 @@ import {
   RotateCcw,
   Volume2,
   VolumeX,
-  GripVertical
+  GripVertical,
+  Minus
 } from 'lucide-react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+
+// Tauri detection
+const isTauri = typeof window !== 'undefined' && window.__TAURI_INTERNALS__ !== undefined;
+
 
 // Utility to get local date string YYYY-MM-DD
 const getLocalDateString = (date = new Date()) => {
@@ -38,6 +43,21 @@ export default function App() {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW();
+
+  // Window control handlers for Tauri
+  const handleMinimize = async () => {
+    if (isTauri) {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      getCurrentWindow().minimize();
+    }
+  };
+
+  const handleClose = async () => {
+    if (isTauri) {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      getCurrentWindow().close();
+    }
+  };
 
   // Core States
   const [medications, setMedications] = useState(() => {
@@ -139,6 +159,14 @@ export default function App() {
       text: 'text-fuchsia-300'
     }
   };
+
+  // Add tauri class to document/body for styling overrides
+  useEffect(() => {
+    if (isTauri) {
+      document.documentElement.classList.add('is-tauri');
+      document.body.classList.add('is-tauri');
+    }
+  }, []);
 
   // Sync clock helper
   useEffect(() => {
@@ -532,9 +560,9 @@ export default function App() {
   });
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 md:p-6 animate-slide-up">
+    <div className={`w-full mx-auto animate-slide-up ${isTauri ? 'h-screen p-3 flex flex-col justify-center overflow-hidden' : 'max-w-md p-4 md:p-6'}`}>
       {/* PWA Install / Update Notification Toast */}
-      {needRefresh && (
+      {needRefresh && !isTauri && (
         <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-2xl glass-panel border border-violet-500/30 flex items-center justify-between shadow-2xl animate-bounce">
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 h-5 text-violet-400" />
@@ -571,7 +599,34 @@ export default function App() {
       )}
 
       {/* Main Widget Card */}
-      <div className="rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col">
+      <div className={`rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col ${isTauri ? 'h-full' : ''}`}>
+        {isTauri && (
+          <div 
+            data-tauri-drag-region
+            className="h-9 flex items-center justify-between px-5 bg-slate-950/40 border-b border-slate-800/40 text-slate-400 select-none cursor-default flex-shrink-0"
+          >
+            <div className="flex items-center gap-1.5 pointer-events-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              <span className="text-4xs font-bold uppercase tracking-wider text-slate-400">Medication Tracker Widget</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleMinimize}
+                className="p-1 rounded hover:bg-slate-800/80 hover:text-slate-200 transition-all cursor-pointer"
+                title="Minimize"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <button 
+                onClick={handleClose}
+                className="p-1 rounded hover:bg-rose-950/60 hover:text-rose-400 transition-all cursor-pointer"
+                title="Close"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
         {/* Widget Header */}
         <div className="p-6 bg-gradient-to-b from-indigo-950/40 to-slate-900/40 border-b border-slate-800">
           <div className="flex justify-between items-start mb-4">
