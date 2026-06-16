@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#0f172a"/>
+  <g transform="rotate(-45 256 256)">
+    <!-- Capsule left half -->
+    <path d="M 176 196 A 60 60 0 0 1 176 316 L 256 316 L 256 196 Z" fill="#6366f1" />
+    <!-- Capsule right half -->
+    <path d="M 256 196 L 336 196 A 60 60 0 0 1 336 316 L 256 316 Z" fill="#10b981" />
+    <!-- Capsule divider line -->
+    <line x1="256" y1="196" x2="256" y2="316" stroke="#0f172a" stroke-width="6" />
+  </g>
+</svg>
