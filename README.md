@@ -1,16 +1,17 @@
-# Medication Tracker PWA
+# Medication Tracker PWA & Desktop Widget
 
-A modern, responsive, and installable Progressive Web App (PWA) designed to help you track daily medications and build consistent habits. Built with **React**, **Vite**, and **Tailwind CSS**, it features a sleek dark glassmorphism design, multi-dose segmented capsule tracking, and dynamic streaks.
+A modern, responsive, and installable Progressive Web App (PWA) and native desktop widget designed to help you track daily medications and build consistent habits. Built with **React**, **Vite**, **Tailwind CSS**, and **Tauri v2**, it features a sleek dark glassmorphism design, multi-dose segmented capsule tracking, dynamic streaks, and seamless desktop/mobile integrations.
 
 ---
 
 ## Key Features
 
+- **Desktop Widget Mode**: Run as a lightweight, borderless, semi-transparent native desktop widget. Features custom window controls (minimize and close), interactive titlebar dragging, and auto-dimensions ($380\text{px} \times 580\text{px}$).
 - **Multi-Dose segmented Tracking**: Log medications taken once or multiple times daily (1 to 4 doses) using an intuitive row of interactive visual capsule segments.
 - **Dynamic Streaks**: Streaks increment automatically when all medications for the day are taken. The streak is preserved across days if yesterday's medications were completed, resetting at midnight if they were missed.
 - **Automatic Midnight Reset**: Clean daily state resets happen automatically at midnight using periodic background timers, visibility state listeners, and tab focus hooks.
 - **Interactive Reordering**: Drag and drop cards to organize medications in any custom priority sequence (utilizes pointer event listeners).
-- **Celestial Sound Effects**: Built-in sound effects (using the Web Audio API) provide delightful double-chimes for dose completion and a celestial chord chord progression when the entire day is completed. Can be muted via the header control.
+- **Celestial Sound Effects**: Built-in sound effects (using the Web Audio API) provide delightful double-chimes for dose completion and a celestial chord progression when the entire day is completed. Can be muted via the header control.
 - **Native Haptics**: Subtle vibrations (vibration API) provide tactile feedback when reordering cards or toggling doses on mobile interfaces.
 - **PWA Installation**: Install as a standalone fullscreen app on both PC and Android devices with offline persistence.
 - **Responsive Layout**: Designed with touch-safe, WCAG-compliant invisible $44\text{px} \times 44\text{px}$ touch targets to prevent accidental clicks while keeping the visual layout clean and compact.
@@ -65,6 +66,26 @@ To run and install the application on your Android phone during local developmen
 
 ---
 
+## How to Use as a Desktop Widget (Tauri)
+
+### 1. Prerequisites
+- **Rust and Cargo**: Ensure you have Rust and its system dependencies installed (required by Tauri). See the [Tauri v2 Prerequisites Guide](https://v2.tauri.app/start/prerequisites/) for your operating system.
+
+### 2. Run in Development Mode
+To launch the native desktop application in development mode:
+```bash
+npx tauri dev
+```
+This will automatically launch the Vite dev server, load the application in a borderless window, and listen for changes.
+
+### 3. Build the Native Desktop App
+To bundle the production installer and executable for your operating system:
+```bash
+npx tauri build
+```
+
+---
+
 ## Visual Themes
 
 You can customize each medication card with 8 harmonious colors:
@@ -85,3 +106,5 @@ You can customize each medication card with 8 harmonious colors:
 - `npm run dev -- --host`: Launch development server exposed to your local network (for mobile access).
 - `npm run build`: Compile and compress files into a production bundle (builds into `dist/` directory, including service worker scripts).
 - `npm run lint`: Run ESLint to analyze codebase for syntax issues.
+- `npx tauri dev`: Run the Tauri desktop widget in development mode with hot-reloading.
+- `npx tauri build`: Compile and package the application as a native desktop widget installer/executable.
