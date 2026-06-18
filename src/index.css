@@ -25,15 +25,16 @@
   --color-success-600: #059669;
 }
 
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #0b0f19;
   color: #f3f4f6;
-  min-height: 100vh;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow-x: hidden;
 }
 

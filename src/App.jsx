@@ -608,7 +608,7 @@ export default function App() {
   });
 
   return (
-    <div className={`w-full mx-auto animate-slide-up ${isTauri || isCapacitor ? 'h-screen p-3 flex flex-col justify-center overflow-hidden' : 'max-w-md p-4 md:p-6'}`}>
+    <div className={`w-full max-w-md mx-auto animate-slide-up min-h-screen flex flex-col justify-center ${isTauri || isCapacitor ? 'p-3 overflow-hidden' : 'p-4 md:p-6'}`}>
       {/* PWA Install / Update Notification Toast */}
       {needRefresh && !isTauri && !isCapacitor && (
         <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-2xl glass-panel border border-violet-500/30 flex items-center justify-between shadow-2xl animate-bounce">
@@ -647,7 +647,7 @@ export default function App() {
       )}
 
       {/* Main Widget Card */}
-      <div className={`rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col ${isTauri || isCapacitor ? 'h-full' : ''}`}>
+      <div className={`w-full rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col ${isTauri || isCapacitor ? 'h-full' : ''}`}>
         {isTauri && (
           <div 
             data-tauri-drag-region
@@ -717,7 +717,7 @@ export default function App() {
           {/* Quick Statistics Banner */}
           <div className="grid grid-cols-5 gap-3 mt-5 items-center">
             {/* Progress Circle Visual */}
-            <div className="col-span-2 flex items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <div className="col-span-2 min-w-0 flex items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
               <div className="relative w-11 h-11 flex-shrink-0">
                 <svg className="w-full h-full">
                   <circle className="text-slate-800" strokeWidth="3.5" stroke="currentColor" fill="transparent" r="18" cx="22" cy="22"/>
@@ -745,18 +745,18 @@ export default function App() {
             </div>
 
             {/* Streak Panel */}
-            <div className="col-span-3 flex items-center justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-xl ${streak > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-800 text-slate-500'} transition-all`}>
+            <div className="col-span-3 min-w-0 flex items-center justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`p-2 rounded-xl ${streak > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-800 text-slate-500'} transition-all flex-shrink-0`}>
                   <Flame className={`w-5 h-5 ${streak > 0 ? 'fill-amber-500/20' : ''}`} />
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-200">{streak} Days</p>
-                  <p className="text-4xs text-slate-500 font-bold uppercase tracking-wider">Active Streak</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-200 truncate">{streak} Days</p>
+                  <p className="text-4xs text-slate-500 font-bold uppercase tracking-wider truncate">Active Streak</p>
                 </div>
               </div>
               {streak > 0 && (
-                <div className="px-2 py-0.5 text-4xs font-bold bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/10 animate-pulse">
+                <div className="px-2 py-0.5 text-4xs font-bold bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/10 animate-pulse flex-shrink-0">
                   STREAKING
                 </div>
               )}
