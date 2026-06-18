@@ -17,9 +17,14 @@ import {
   Minus
 } from 'lucide-react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { StatusBar, StatusBarStyle } from '@capacitor/status-bar';
+import { App as AppPlugin } from '@capacitor/app';
 
-// Tauri detection
+// Platform detection
 const isTauri = typeof window !== 'undefined' && window.__TAURI_INTERNALS__ !== undefined;
+const isCapacitor = Capacitor.isNativePlatform();
 
 
 // Utility to get local date string YYYY-MM-DD
@@ -160,13 +165,50 @@ export default function App() {
     }
   };
 
-  // Add tauri class to document/body for styling overrides
+  // Add platform classes and initialize native status bar
   useEffect(() => {
     if (isTauri) {
       document.documentElement.classList.add('is-tauri');
       document.body.classList.add('is-tauri');
     }
+    if (isCapacitor) {
+      document.documentElement.classList.add('is-capacitor');
+      document.body.classList.add('is-capacitor');
+      
+      // Initialize StatusBar
+      try {
+        StatusBar.setStyle({ style: StatusBarStyle.Dark });
+        StatusBar.setBackgroundColor({ color: '#0b0f19' });
+      } catch (err) {
+        console.warn('Failed to configure native StatusBar', err);
+      }
+    }
   }, []);
+
+  // Android hardware back button handler
+  useEffect(() => {
+    if (!isCapacitor) return;
+    
+    let listenerHandle;
+    
+    AppPlugin.addListener('backButton', () => {
+      if (isAddOpen) {
+        setIsAddOpen(false);
+      } else if (editingMed) {
+        setEditingMed(null);
+      } else {
+        AppPlugin.exitApp();
+      }
+    }).then(handle => {
+      listenerHandle = handle;
+    });
+    
+    return () => {
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
+    };
+  }, [isAddOpen, editingMed]);
 
   // Sync clock helper
   useEffect(() => {
@@ -298,8 +340,14 @@ export default function App() {
   };
 
   // Tactile haptic feedback
-  const triggerHaptic = () => {
-    if (window.navigator && window.navigator.vibrate) {
+  const triggerHaptic = async () => {
+    if (isCapacitor) {
+      try {
+        await Haptics.impact({ style: ImpactStyle.Light });
+      } catch (err) {
+        console.warn('Native haptics failed', err);
+      }
+    } else if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(40); // 40ms subtle vibe
     }
   };
@@ -560,9 +608,9 @@ export default function App() {
   });
 
   return (
-    <div className={`w-full mx-auto animate-slide-up ${isTauri ? 'h-screen p-3 flex flex-col justify-center overflow-hidden' : 'max-w-md p-4 md:p-6'}`}>
+    <div className={`w-full mx-auto animate-slide-up ${isTauri || isCapacitor ? 'h-screen p-3 flex flex-col justify-center overflow-hidden' : 'max-w-md p-4 md:p-6'}`}>
       {/* PWA Install / Update Notification Toast */}
-      {needRefresh && !isTauri && (
+      {needRefresh && !isTauri && !isCapacitor && (
         <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-2xl glass-panel border border-violet-500/30 flex items-center justify-between shadow-2xl animate-bounce">
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 h-5 text-violet-400" />
@@ -599,7 +647,7 @@ export default function App() {
       )}
 
       {/* Main Widget Card */}
-      <div className={`rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col ${isTauri ? 'h-full' : ''}`}>
+      <div className={`rounded-3xl glass-panel overflow-hidden border border-slate-800 shadow-2xl flex flex-col ${isTauri || isCapacitor ? 'h-full' : ''}`}>
         {isTauri && (
           <div 
             data-tauri-drag-region
@@ -628,10 +676,10 @@ export default function App() {
           </div>
         )}
         {/* Widget Header */}
-        <div className="p-6 bg-gradient-to-b from-indigo-950/40 to-slate-900/40 border-b border-slate-800">
+        <div className="px-5 pt-5 pb-5 bg-gradient-to-b from-indigo-950/40 to-slate-900/40 border-b border-slate-800">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-100 flex items-center gap-1.5">
                 <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Medication</span>
                 <span className="text-slate-400 font-light">Tracker</span>
               </h1>
@@ -645,20 +693,20 @@ export default function App() {
             </div>
 
             {/* Utility buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <button 
                 onClick={() => {
                   setSoundEnabled(!soundEnabled);
                   localStorage.setItem('meds_tracker_sound', String(!soundEnabled));
                 }}
-                className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
                 title={soundEnabled ? "Mute sounds" : "Unmute sounds"}
               >
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               </button>
               <button 
                 onClick={handleManualReset}
-                className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+                className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
                 title="Reset daily states manually"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -718,7 +766,7 @@ export default function App() {
 
         {/* Filter Bar */}
         {totalCount > 0 && (
-          <div className="px-6 py-3 bg-slate-900/20 flex gap-2 border-b border-slate-800/80">
+          <div className="px-5 py-3 bg-slate-900/20 flex gap-2 border-b border-slate-800/80">
             {['all', 'pending', 'taken'].map((type) => (
               <button
                 key={type}
@@ -736,7 +784,7 @@ export default function App() {
         )}
 
         {/* Medications List Area */}
-        <div className="p-6 flex-1 max-h-[360px] overflow-y-auto min-h-[220px]">
+        <div className={`px-5 py-5 flex-1 overflow-y-auto min-h-[220px] ${isTauri || isCapacitor ? 'max-h-none' : 'max-h-[360px]'}`}>
           {filteredMeds.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-4">
               <div className="w-16 h-16 rounded-full bg-slate-900/60 border border-slate-800/80 flex items-center justify-center mb-4 text-slate-500">
